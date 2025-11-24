@@ -1,0 +1,38 @@
+# Ignore all video files
+*.mp4
+*.mov
+*.avi
+*.mkv
+
+# Allow dataset videos
+!data_sets/around\ the\ world\ dumbbell\ raises/*.mp4
+!data_sets/bicep\ raises/*.mp4
+!data_sets/barbel\ row/*.mp4
+!data_sets/front\ dumbbell\ raises/*.mp4
+!data_sets/lateral\ raises/*.mp4
+!data_sets/push_ups/*.mp4
+!data_sets/squats/*.mp4
+# Ignore temporary files
+*.tmp
+*.log
+# Ignore compiled Python files
+*.pyc
+__pycache__/    
+
+# Ignore virtual environment directories
+venv/
+env/    
+# Ignore IDE specific files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace 
+# Ignore system files
+.DS_Store
+Thumbs.db
+# Ignore Jupyter Notebook checkpoints
+.ipynb_checkpoints/ 
+
+# Ignore dataset folders
+clear_data_sets/
+ 
