@@ -8,4 +8,25 @@ out/push_ups/clips/push_up_sideview_clip000.npz,push_up
 out/push_ups/clips/push_up_sideview_clip001.npz,push_up
 out/push_ups/clips/push_up_sideview_clip002.npz,push_up
 out/push_ups/clips/push_up_sideview_clip003.npz,push_up
+out/lateral_raises/clips/lateral_raises_clip017.npz, lateral_raises
+out/lateral_raises/clips/lateral_raises_clip012.npz, lateral_raises
+out/front_dumbbell_raises/clips/front_dumbbell_raises_clip024.npz, front_dumbbell_raises
+out/front_dumbbell_raises/clips/front_dumbbell_raises_clip015.npz, front_dumbbell_raises
+out/front_dumbbell_raises/clips/front_dumbbell_raises_clip012.npz, front_dumbbell_raises
+out/front_dumbbell_raises/clips/front_dumbbell_raises_clip008.npz, front_dumbbell_raises
+out/front_dumbbell_raises/clips/front_dumbbell_raises_clip003.npz, front_dumbbell_raises
+out/front_dumbbell_raises/clips/front_dumbbell_raises_clip002.npz, front_dumbbell_raises
+out/biceps_raises/clips/biceps_raises_clip_two_hands007.npz, biceps_raises
+out/biceps_raises/clips/biceps_raises_clip_two_hands008.npz, biceps_raises
+out/biceps_raises/clips/biceps_raises_clip_two_hands011.npz, biceps_raises
+out/biceps_raises/clips/biceps_raises_clip_two_hands015.npz, biceps_raises
+out/biceps_raises/clips/biceps_raises_clip_one_hand002.npz, biceps_raises
+out/biceps_raises/clips/biceps_raises_clip_one_hand001.npz, biceps_raises
+out/barbel_rows/clips/barbel_row_clip006.npz, barbel_row
+out/barbel_rows/clips/barbel_row_clip003.npz, barbel_row
+out/atw_dumbbell_raises/clips/atw_dumbbell_raises_clip011.npz, atw_dumbbell_raise
+out/atw_dumbbell_raises/clips/atw_dumbbell_raises_clip008.npz, atw_dumbbell_raise
+out/atw_dumbbell_raises/clips/atw_dumbbell_raises_clip004.npz, atw_dumbbell_raise
+out/atw_dumbbell_raises/clips/atw_dumbbell_raises_clip013.npz, atw_dumbbell_raise
+out/atw_dumbbell_raises/clips/atw_dumbbell_raises_clip010.npz, atw_dumbbell_raise
 

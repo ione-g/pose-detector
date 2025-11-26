@@ -6,7 +6,7 @@
 
 # Allow dataset videos
 !data_sets/around\ the\ world\ dumbbell\ raises/*.mp4
-!data_sets/bicep\ raises/*.mp4
+!data_sets/biceps\ raises/*.mp4
 !data_sets/barbel\ row/*.mp4
 !data_sets/front\ dumbbell\ raises/*.mp4
 !data_sets/lateral\ raises/*.mp4
