@@ -11,16 +11,29 @@ POSE_EDGES = [
     (0,2),(2,3),(3,7),(0,5),(5,6),(6,8)
 ]
 
+# def build_adj(J=33, edges=POSE_EDGES):
+#     A = np.zeros((J,J), dtype=np.float32)
+#     for a,b in edges:
+#         A[a,b]=A[b,a]=1.0
+#     for i in range(J):
+#         A[i,i]=1.0
+#     D = np.diag(1.0 / (A.sum(1)+1e-6))
+#     return (D @ A).astype(np.float32)  # simple normalized adjacency
+
 def build_adj(J=33, edges=POSE_EDGES):
     A = np.zeros((J,J), dtype=np.float32)
     for a,b in edges:
-        A[a,b]=A[b,a]=1.0
+        A[a,b] = A[b,a] = 1.0
     for i in range(J):
-        A[i,i]=1.0
-    D = np.diag(1.0 / (A.sum(1)+1e-6))
-    return (D @ A).astype(np.float32)  # simple normalized adjacency
+        A[i,i] = 1.0
+    # safer normalization: avoid divide-by-zero and overflow by using np.where
+    deg = A.sum(axis=1).astype(np.float32)             # [J]
+    deg_inv = np.where(deg > 0.0, 1.0 / deg, 0.0).astype(np.float32)
+    D = np.diag(deg_inv)                                # [J,J]
+    return (D @ A).astype(np.float32)
 
-def make_windows(T, win=96, hop=48):
+
+def make_windows(T, win=96, hop=24):
     idx=[]
     if T<=win:
         idx.append((0,win))
@@ -59,7 +72,7 @@ class PoseWindows(Dataset):
         with open(csv_path, newline='', encoding='utf-8') as f:
             for row in csv.reader(f):
                 if not row: continue
-                p, lab = row[0], row[1]
+                p, lab = row[0].strip(), row[1].strip()
                 if lab not in self.class_to_id: continue
                 xyz = load_npz_xyz(p)
                 for s,e in make_windows(xyz.shape[0], win, hop):
