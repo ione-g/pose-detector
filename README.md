@@ -59,6 +59,9 @@ cd pose-detector
 python3 -m venv venv
 source venv/bin/activate
 pip install mediapipe opencv-python numpy pandas torch torchvision scikit-learn tqdm
+```
+також використання утиліти для нарізання відео (в даному репозиторії пропунується вже готові нарізки) потребує встановлення 
+```bash
 pip install yt-dlp ffmpeg-python PyQt5 dtw-python
 sudo apt install ffmpeg
 ```
@@ -70,7 +73,7 @@ sudo apt install ffmpeg
 ```bash
 python mediapipe_layer/extractor.py \
     --video path/to/input.mp4 \
-    --out-prefix processed_data/session1/pose \
+    --out-prefix out/session1/pose \
     --model-complexity 2 \
     --use-world \
     --min-det 0.5 \
@@ -82,8 +85,8 @@ python mediapipe_layer/extractor.py \
 Для пакетної обробки каталогу виконайте:
 ```bash
 python mediapipe_layer/batch_extractor.py \
-    --in-dir videos/ \
-    --out-dir processed_data/ \
+    --in-dir data_sets/squats \
+    --out-dir out/squats \
     --model-complexity 2 \
     --use-world \
     --min-det 0.5 \
@@ -106,8 +109,8 @@ processed_data/session2/pose.npz,push_up
 
 ```bash
 python -m nn.train_classifier \
-    --train-csv train.csv \
-    --val-csv val.csv \
+    --train-csv out/train.csv \
+    --val-csv out/val.csv \
     --epochs 50 \
     --bs 32 \
     --lr 0.001 \
@@ -119,9 +122,9 @@ python -m nn.train_classifier \
 
 ```bash
 python -m nn.quick_classificator_from_trained_model \
-    --test-csv test.csv \
-    --checkpoint checkpoints/stgcn_squat.pth \
-    --bs 64 
+    --test-csv out/test.csv \
+    --checkpoint checkpoints/stgcn_checkpoint.pth \
+    --bs 32 
 ```
 
 
