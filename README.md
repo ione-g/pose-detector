@@ -56,8 +56,17 @@ cd pose-detector
 ## Залежності
 
 ```bash
-python3 -m venv venv
+python3 or python -m venv venv
+```
+Активація на MacOS/Linux
+```bash
 source venv/bin/activate
+```
+Активація на віндовс
+```bash
+.\venv\Scripts\Activate.bat
+```
+```bash
 pip install mediapipe opencv-python numpy pandas torch torchvision scikit-learn tqdm
 ```
 також використання утиліти для нарізання відео (в даному репозиторії пропунується вже готові нарізки) потребує встановлення 
