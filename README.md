@@ -105,7 +105,7 @@ processed_data/session2/pose.npz,push_up
 Навчіть `ST‑GCN` з `nn/train_classifier.py` так:
 
 ```bash
-python -m nn.train_classifier.py \
+python -m nn.train_classifier \
     --train-csv train.csv \
     --val-csv val.csv \
     --epochs 50 \
@@ -118,7 +118,7 @@ python -m nn.train_classifier.py \
 Для класифікації нових послідовностей використовуйте швидкий класифікатор:
 
 ```bash
-python -m nn.quick_classificator_from_trained_model.py \
+python -m nn.quick_classificator_from_trained_model \
     --test-csv test.csv \
     --checkpoint checkpoints/stgcn_squat.pth \
     --bs 64 
