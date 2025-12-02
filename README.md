@@ -109,3 +109,47 @@ python nn/quick_classificator_from_trained_model.py \
     --bs 64 
 ```
 
+python -m nn.train_classifier \
+  --train-csv out/synth/train.csv \
+  --val-csv out/synth/val.csv \
+  --classes correct knees_in shallow forward_lean \
+  --epochs 10 --bs 32 --augment
+```
+
+Оцінка вже натренованої моделі на тестовому наборі:
+```bash
+python -m nn.quick_classificator_from_trained_model \
+  --test-csv out/test.csv \
+  --checkpoint checkpoints/stgcn33_7classes.pth \
+  --classes correct knees_in shallow forward_lean ...
+```
+
+Формат CSV:
+```
+/path/to/out/clip.npz,label
+```
+
+Налаштування навчальної моделі
+- Модель STGCN33 знаходиться у `nn/stgcn.py`.
+- Контроль параметрів моделі та навчання — через аргументи у `train_classifier.py`.
+
+Запуск і відладка (поширені помилки)
+-----------------------------------
+- ModuleNotFoundError: No module named 'utils'
+  - Запускайте скрипти з кореневої директорії проекту (`cd <project_root>`).
+  - Або додайте `export PYTHONPATH=$(pwd)` перед запуском.
+
+- ModuleNotFoundError: No module named '_tkinter' / `python -m tkinter` помилка
+  - Інсталяція tcl-tk через Homebrew та перезбірка/перевстановлення Python:
+    ```bash
+    brew install tcl-tk
+    brew reinstall python@3.11
+    ```
+  - Створіть знову venv після встановлення.
+
+- HTTP 403 у `yt-dlp`:
+  - Оновіть `yt-dlp` або спробуйте `--user-agent` опцію.
+  - Деякі відео мають обмеження (приватні, регіональні, age-restricted).
+
+- ffmpeg command not found:
+  - Встановіть `ffmpeg` через Homebrew: `brew install ffmpeg`.
