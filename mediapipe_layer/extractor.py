@@ -397,7 +397,7 @@ def extract(
         },
     }
     if write_meta:
-        Path(f"{out_prefix}.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
+        Path(f"{out_prefix}.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2),encoding='utf-8')
         print(f"[OK] Saved {out_prefix}.npz and {out_prefix}.json")
 
     print(f"[OK] Saved {out_prefix}.npz")
