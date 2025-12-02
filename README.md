@@ -82,8 +82,8 @@ python mediapipe_layer/extractor.py \
 Для пакетної обробки каталогу виконайте:
 ```bash
 python mediapipe_layer/batch_extractor.py \
-    --input-dir videos/ \
-    --output-dir processed_data/ \
+    --in-dir videos/ \
+    --out-dir processed_data/ \
     --model-complexity 2 \
     --use-world \
     --min-det 0.5 \
