@@ -33,7 +33,7 @@ def build_adj(J=33, edges=POSE_EDGES):
     return (D @ A).astype(np.float32)
 
 
-def make_windows(T, win=96, hop=24):
+def make_windows(T, win=24, hop=12):
     idx=[]
     if T<=win:
         idx.append((0,win))

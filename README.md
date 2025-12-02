@@ -1,176 +1,111 @@
-# Pose Detector / Activity Classifier
+# Визначення поз (Pose Detector)
 
-Коротко
--------
-Цей репозиторій містить інструменти для:
-- екстракції поз (MediaPipe) з відео;
-- збереження й візуалізації збережених поз (2D/3D);
-- простого UI для вибору фрагменту відео (slicer);
-- порівняння/оцінки якості виконання вправ;
-- навчання та швидкої перевірки класифікатора на базі ST-GCN.
+**Pose Detector** — це Python-проєкт для вилучення та аналізу послідовностей людських поз із відео. Він використовує [MediaPipe Pose](https://google.github.io/mediapipe/solutions/pose) для визначення суглобів, PyTorch для побудови моделей глибокого навчання та набір утиліт для підготовки датасетів, навчання моделей та запуску інференсу. Основна ідея полягає в перетворенні RGB-відео в послідовності скелетів із 33 точок, побудові ковзних вікон та навчанні графової згорткової мережі (ST-GCN) для розпізнавання різних рухів.
 
-Структура проекту (коротко)
----------------------------
-- `data_sets/` — сирі відео (по папках, класи як підпапки).
-- `out/` — результати (npz, json, кліпи та csv).
-- `utils/`
-  - `pose_extractor.py` — скрипт/функції для екстракції поз з відео.
-  - `mp4slicer.py` — простий PyQt5 GUI (timeline + 3 маркери).
-  - `pose_comparator.py` — DTW / відстані між послідовностями поз.
-  - інші корисні утиліти.
-- `mediapipe_layer/` — основний екстрактор, batch утиліти та візуалізація.
-- `nn/` — тренування та quick-eval класифікатора (STGCN).
-- `checkpoints/` — готові вайти моделі.
+---
 
-Залежності
-----------
-Системні:
-- Homebrew (macOS) або відповідні пакунки для Linux.
-- ffmpeg
-- yt-dlp (для завантаження з YouTube)
+## Можливості
 
-macOS (Homebrew) приклад:
+
+- **Витягування поз із відео** — `mediapipe_layer/extractor.py`  читає відеофайл, визначає 33 суглоби в кожному кадрі та зберігає результат у файл `.npz` розміром `(T,33,4)`,що містить `(x, y, z, visibility)` разом з JSON‑файлом із метаданими, який зберігає частоту кадрів та інші параметри. Інтерфейс командного рядка дозволяє вибрати складність моделі, мінімальну впевненість виявлення та відстеження, параметри згладжування, нормування скелета та обробку відсутніх кадрів
+- **Пакетна обробка відео** — `batch_extractor.py` дозволяє обробляти цілі папки з відео використовуючи `extractor.py`.
+- **Опрацювання датасетів** — `utils/dataset_windows.py` містить функції для побудови матриці суміжності для графа із 33 суглобів, генерації ковзних вікон, нормування координат навколо тазу, заміни відсутніх значень та застосування випадкових віддзеркалень чи шуму. Клас `PoseWindows` читає CSV із парами шлях,мітка та повертає вікна як тензори розміру `[C × T × J]` разом із мітками.
+- **ST-GCN архітектура** — модуль `nn/stgcn.py` реалізує спатіо‑темпоральну графову згорткову мережу. Вона будуває матрицю суміжності для скелета з 33 вузлів та складає блоки графових згорток із часовими згортками, адаптивним пулінгом, дроп‑аутом та лінійним класифікатором
+- **Навчання** — скрипт `train_classifier.py` навчає ST‑GCN на вашому датасеті. Він читає CSV із тренувальними та валідаційними даними, обчислює ваги класів, обробляє вибір GPU/CPU, використовує ранню зупинку на основі валідаційної втрати та зберігає найкращу модель 
+- **Швидка класифікація** - `quick_classificator_from_trained_model.py` дзавантажує збережений чекпоінт та передбачає дії для нових послідовностей. Він підтримує голосування більшістю по ковзних вікнах та може читати назви класів із текстового файлу.
+- **YouTube-тример** — `ytfinder.py` дозволяє завантажувати та обрізати відео для формування датасету.
+- **Додаткові утиліти** — MP4-редактор `mp4slicer.py` - дозволяє швидко нарізати повне відео на фрагменти окремих вправ.
+
+---
+
+## Структура проєкту
+
+| Каталог / файл | Опис |
+|----------------|------|
+| `mediapipe_layer/` | Екстракція поз, рендеринг, пакетна обробка |
+| `nn/` | ST-GCN модель, навчання та інференс |
+| `utils/` | Обробка датасету, генерація, порівняння, обрізання |
+| `processed_data/` | Згенеровані `.npz` послідовності поз |
+| `checkpoints/` | Збережені моделі |
+| `out/` | Результати рендеру та прогнозування |
+| `mp4slicer.py` | Тримінг відеофайлу |
+
+---
+
+## Встановлення
+
 ```bash
-brew install ffmpeg yt-dlp
+git clone https://github.com/ione-g/pose-detector.git
+cd pose-detector
 ```
+## Залежності
 
-Python (venv)
 ```bash
 python3 -m venv venv
 source venv/bin/activate
-python -m pip install -U pip setuptools wheel
-pip install opencv-python mediapipe numpy torch torchvision scikit-learn fastdtw moviepy pyqt5 matplotlib
+pip install mediapipe opencv-python numpy pandas torch torchvision scikit-learn tqdm
+pip install yt-dlp ffmpeg-python PyQt5 dtw-python
+sudo apt install ffmpeg
 ```
+## Використання
 
-(для Apple Silicon або спеціального CUDA/ROCm використайте інструкції для `torch` від PyTorch)
+### 1. Витягування поз із відео
+Щоб перетворити відеофайл у .npz послідовність, запустіть:
 
-Рекомендований Requirements (приклад)
 ```bash
-pip install -r requirements.txt
-# або поелементно:
-pip install opencv-python mediapipe numpy torch torchvision scikit-learn fastdtw moviepy pyqt5 matplotlib
+python mediapipe_layer/extractor.py \
+    --video path/to/input.mp4 \
+    --out-prefix processed_data/session1/pose \
+    --model-complexity 2 \
+    --use-world \
+    --min-det 0.5 \
+    --min-track 0.5 \
+    --smooth-ema 0.75
 ```
+Ця команда створить `pose.npz` із масивом розміру `(T,33,4)` та `pose.json` із метаданими Додаткові параметри: `--use-world`, `--no-center`, `--no-scale`, `--save-missing-as-nan`, `--render` та `--render-out`
 
-Екстракція поз (з відео)
------------------------
-Запуск екстрактора (один файл):
+Для пакетної обробки каталогу виконайте:
 ```bash
-python mediapipe_layer/extractor.py --video path/to/video.mp4 --out-prefix out/clip
+python mediapipe_layer/batch_extractor.py \
+    --input-dir videos/ \
+    --output-dir processed_data/ \
+    --model-complexity 2 \
+    --use-world \
+    --min-det 0.5 \
+    --min-track 0.5 \
+    --smooth-ema 0.75
 ```
 
-Параметри:
-- `--use-world` — використовувати WORLD (3D) координати, якщо потрібно.
-- `--model-complexity` — 0/1/2.
-- `--min-det`, `--min-track` — поріг детекції/трекінгу.
-- `--no-meta` — не записувати JSON метадані.
+### 2. Підготовка датасету
+Після витягування `.npz` файлів створіть CSV з кожним шляхом та міткою, наприклад:
 
-Batch-генерація (через `batch_extractor.py`) — дивіться help:
 ```bash
-python mediapipe_layer/batch_extractor.py --indir data_sets --out out --pattern '*.mp4'
+processed_data/session1/pose.npz,squat
+processed_data/session2/pose.npz,push_up
 ```
 
-Формат, який зберігається
-- `.npz`:
-  - `poses` — масив розміру (T, 33, [x,y,z,vis]) — або (T, 33, 3) (без visibility).
-- `.json` — метадані (fps, width, height, canonicalization flags тощо).
+Використовуйте `PoseWindows` із `utils/dataset_windows.py`, щоб завантажити послідовності, створити ковзні вікна, нормувати координати та застосувати аугментації. Скрипт навчання створює цей датасет автоматично.
 
-Візуалізація (overlay / 3D)
----------------------------
-Оверлей на відео (якщо `--render`):
+### 3. Навчання мережі
+Навчіть `ST‑GCN` з `nn/train_classifier.py` так:
+
 ```bash
-python mediapipe_layer/extractor.py --render --video path/to/video.mp4 --poses out/clip.npz --meta out/clip.json --show
+python nn/train_classifier.py \
+    --train-csv train.csv \
+    --val-csv val.csv \
+    --epochs 50 \
+    --bs 32 \
+    --lr 0.001 \
+    --checkpoint-out checkpoints/stgcn_checkpoint.pth
 ```
+Скрипт будує модель ST‑GCN із чотирьох блоків, обчислює ваги класів, навчає з ранньою зупинкою та зберігає найкращий чекпоінт
 
-3D огляд (кості):
+Для класифікації нових послідовностей використовуйте швидкий класифікатор:
+
 ```bash
-python mediapipe_layer/overview/skeleton_overview.py --poses out/clip.npz --meta out/clip.json --step 1
+python nn/quick_classificator_from_trained_model.py \
+    --test-csv test.csv \
+    --checkpoint checkpoints/stgcn_squat.pth \
+    --bs 64 
 ```
-
-Slicing / GUI timeline
-----------------------
-Запуск PyQt5 GUI:
-```bash
-python utils/mp4slicer.py
-```
-
-Функції GUI:
-- Відкрити відео;
-- перший маркер — `current` (ручне управління положенням відтворення);
-- другий маркер — `start` (початок фрагмента);
-- третій маркер — `end` (кінець фрагмента);
-- replay segment — відтворює лише виділену область (істотно для швидкого перегляду);
-- slice & save — зберегти сегмент у файл (`ffmpeg -ss ... -to ...` з мілісекундами).
-
-Порівняння / Оцінка якості
--------------------------
-- Використовуйте `pose_comparator.py` або `fastdtw` для вирівнювання послідовностей (DTW) за часом.
-- Для швидкої перевірки схожості:
-  - нормальна відстань (x,y,z) між відповідними суглобами;
-  - усереднення по часах та суглобам — дає загальний score (нижче — краще).
-- Краща практика: вирівняти послідовності DTW → пер-джойн компресія → вирахувати per-frame score → усереднити.
-
-Нейронна мережа / Тренування
----------------------------
-Сценарії:
-- Підготовка вікон (windows) з `utils/dataset_windows.py`.
-- Навчання ST-GCN (в каталозі `nn/`).
-
-Приклад запуску тренування (якщо скрипт `train_classifier.py` завершений):
-```bash
-python -m nn.train_classifier \
-  --train-csv out/synth/train.csv \
-  --val-csv out/synth/val.csv \
-  --classes correct knees_in shallow forward_lean \
-  --epochs 10 --bs 32 --augment
-```
-
-Оцінка вже натренованої моделі на тестовому наборі:
-```bash
-python -m nn.quick_classificator_from_trained_model \
-  --test-csv out/test.csv \
-  --checkpoint checkpoints/stgcn33_7classes.pth \
-  --classes correct knees_in shallow forward_lean ...
-```
-
-Формат CSV:
-```
-/path/to/out/clip.npz,label
-```
-
-Налаштування навчальної моделі
-- Модель STGCN33 знаходиться у `nn/stgcn.py`.
-- Контроль параметрів моделі та навчання — через аргументи у `train_classifier.py`.
-
-Запуск і відладка (поширені помилки)
------------------------------------
-- ModuleNotFoundError: No module named 'utils'
-  - Запускайте скрипти з кореневої директорії проекту (`cd <project_root>`).
-  - Або додайте `export PYTHONPATH=$(pwd)` перед запуском.
-
-- ModuleNotFoundError: No module named '_tkinter' / `python -m tkinter` помилка
-  - Інсталяція tcl-tk через Homebrew та перезбірка/перевстановлення Python:
-    ```bash
-    brew install tcl-tk
-    brew reinstall python@3.11
-    ```
-  - Пересоздайте venv після встановлення.
-
-- HTTP 403 у `yt-dlp`:
-  - Оновіть `yt-dlp` або спробуйте `--user-agent` опцію.
-  - Деякі відео мають обмеження (приватні, регіональні, age-restricted).
-
-- ffmpeg command not found:
-  - Встановіть `ffmpeg` через Homebrew: `brew install ffmpeg`.
-
-- Tkinter у venv:
-  - Tkinter поставляється з самою збіркою Python; переконайтесь, що Python для venv має підтримку tcl-tk.
-
-Корисні підказки
-----------------
-- Щоб уникнути повторних завантажень відео через `yt-dlp`, використовуйте кешування — зберігайте оригінальні mp4 і обрізайте від них (`ffmpeg -ss ... -to ... -c copy`).
-- Для вирівнювання різних швидкостей виконання вправ використовуйте DTW (fastdtw).
-- Зберігайте `.npz` у форматі `(T, 33, 4)` (x,y,z,visibility) або `(T,33,3)` якщо visibility непотрібний.
-- Використовуйте `--step 1` при візуалізації невеликих відео, щоб не 'пропускати' кадри.
-
-
 
