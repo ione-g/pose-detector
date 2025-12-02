@@ -1,6 +1,6 @@
 # Визначення поз (Pose Detector)
 
-**Pose Detector** — це Python-проєкт для вилучення та аналізу послідовностей людських поз із відео. Він використовує [MediaPipe Pose](https://google.github.io/mediapipe/solutions/pose) для визначення суглобів, PyTorch для побудови моделей глибокого навчання та набір утиліт для підготовки датасетів, навчання моделей та запуску інференсу. Основна ідея полягає в перетворенні RGB-відео в послідовності скелетів із 33 точок, побудові ковзних вікон та навчанні графової згорткової мережі (ST-GCN) для розпізнавання різних рухів.
+**Pose Detector** — це Python-проєкт для вилучення та аналізу послідовностей людських поз із відео. Він використовує MediaPipe Pose для визначення суглобів, PyTorch для побудови моделей глибокого навчання та набір утиліт для підготовки датасетів, навчання моделей та запуску інференсу. Основна ідея полягає в перетворенні RGB-відео в послідовності скелетів із 33 точок, побудові ковзних вікон та навчанні графової згорткової мережі (ST-GCN) для розпізнавання різних рухів.
 
 ---
 
@@ -90,7 +90,7 @@ processed_data/session2/pose.npz,push_up
 Навчіть `ST‑GCN` з `nn/train_classifier.py` так:
 
 ```bash
-python nn/train_classifier.py \
+python -m nn.train_classifier.py \
     --train-csv train.csv \
     --val-csv val.csv \
     --epochs 50 \
@@ -103,35 +103,13 @@ python nn/train_classifier.py \
 Для класифікації нових послідовностей використовуйте швидкий класифікатор:
 
 ```bash
-python nn/quick_classificator_from_trained_model.py \
+python -m nn.quick_classificator_from_trained_model.py \
     --test-csv test.csv \
     --checkpoint checkpoints/stgcn_squat.pth \
     --bs 64 
 ```
 
-python -m nn.train_classifier \
-  --train-csv out/synth/train.csv \
-  --val-csv out/synth/val.csv \
-  --classes correct knees_in shallow forward_lean \
-  --epochs 10 --bs 32 --augment
-```
 
-Оцінка вже натренованої моделі на тестовому наборі:
-```bash
-python -m nn.quick_classificator_from_trained_model \
-  --test-csv out/test.csv \
-  --checkpoint checkpoints/stgcn33_7classes.pth \
-  --classes correct knees_in shallow forward_lean ...
-```
-
-Формат CSV:
-```
-/path/to/out/clip.npz,label
-```
-
-Налаштування навчальної моделі
-- Модель STGCN33 знаходиться у `nn/stgcn.py`.
-- Контроль параметрів моделі та навчання — через аргументи у `train_classifier.py`.
 
 Запуск і відладка (поширені помилки)
 -----------------------------------
@@ -152,4 +130,5 @@ python -m nn.quick_classificator_from_trained_model \
   - Деякі відео мають обмеження (приватні, регіональні, age-restricted).
 
 - ffmpeg command not found:
-  - Встановіть `ffmpeg` через Homebrew: `brew install ffmpeg`.
+  - Встановіть `ffmpeg` через Homebrew(для MacOS): `brew install ffmpeg`.
+  - Встановіть [ffmpeg](https://www.gyan.dev/ffmpeg/builds/) із офіційного сайту, та додайте в PATH змінну для роботи cli `C:/FFMPEG_INSTALLATION_FOLDER/bin`
